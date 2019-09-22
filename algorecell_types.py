@@ -87,6 +87,7 @@ class FromAny(_Strategy):
     def make_start_node(self):
         n = pydot.Node("any", label="")
         n.set_tooltip(self.__class__.__name__[4:])
+        n.set_shape("circle")
         n.set_style("dotted")
         return n
     def perturbation(self):
