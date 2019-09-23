@@ -6,7 +6,7 @@ from setuptools import setup, find_packages
 NAME = 'algorecell_types'
 
 META = {}
-META_FILE = "{}.py".format(NAME)
+META_FILE = "{}/__init__.py".format(NAME)
 with open(META_FILE) as f:
     __data = f.read()
 for key in ["version"]:
