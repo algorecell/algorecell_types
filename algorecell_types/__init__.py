@@ -152,6 +152,45 @@ class ReprogrammingStrategies(object):
             a[0].fill_graph(g, target, compact)
         return g
 
+    def as_table(self):
+        l = set()
+        for a in self.__d:
+            mods = {}
+            for p in a[0].perturbation_sequence():
+                for n, v in p.args[0].items():
+                    if n not in mods:
+                        mods[n] = set()
+                    mods[n].add(v)
+            l.add(frozenset([(n,frozenset(vs)) for n,vs in mods.items()]))
+        def fmt(vs):
+            if len(vs) == 1:
+                return list(vs)[0]
+            return set(vs)
+        l = [dict([(n, fmt(vs)) for n, vs in mods]) for mods in l]
+        df = pd.DataFrame(l).fillna('')
+        df = df.style.set_table_styles([
+            dict(selector="th",props=[
+                ("border-right", "1px solid black"),
+                ("border-bottom", "1px solid black"),
+                ]),
+            {"selector": "td", "props": [
+                    ("border", "1px solid black")]},
+            dict(selector="th.col_heading",
+                props=[("writing-mode", "vertical-lr"),
+                    ("transform", "rotateZ(180deg)"),
+                    ("vertical-align", "top"),
+                    ("text-orientation", "mixed")])])
+        def colorize(val):
+            if val == 0:
+                return "color: red; background-color: red"
+            if val == 1:
+                return "color: green; background-color: green"
+            if type(val) is set:
+                return "background-color: yellow"
+            return ""
+        df = df.applymap(colorize)
+        return df
+
     def perturbations(self):
         ps = set()
         for a in self.__d:
