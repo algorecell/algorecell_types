@@ -107,6 +107,9 @@ class FromState(_Strategy):
         if len(self.args) > 2:
             return self.args[2]
 
+class FromCondition(FromState):
+    pass
+
 class FromSteadyState(FromState):
     def make_start_node(self):
         n = super().make_start_node()
