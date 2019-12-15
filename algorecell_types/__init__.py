@@ -128,10 +128,23 @@ class ReprogrammingStrategies(object):
     def __init__(self):
         self.__d = []
         self.__aliases = {}
+        self.__autoaliases = {}
 
     @property
     def aliases(self):
         return pd.DataFrame(self.__aliases).T
+
+    def autoalias(self, pattern, state):
+        h = tuple(sorted(state.items()))
+        reg = self.__autoaliases.get(pattern)
+        if not reg:
+            reg = self.__known_alias[pattern] = {}
+        a = reg.get(h)
+        if not a:
+            a = alias_pat.format(len(reg))
+            reg[h] = a
+            self.register_alias(a, state)
+        return a
 
     def register_alias(self, name, state):
         self.__aliases[name] = state
@@ -174,14 +187,14 @@ class ReprogrammingStrategies(object):
         df = df.style.set_table_styles([
             dict(selector="th",props=[
                 ("border-right", "1px solid black"),
-                ("border-bottom", "1px solid black"),
                 ]),
             {"selector": "td", "props": [
-                    ("border", "1px solid black")]},
+                    ("border-right", "1px solid black")]},
             dict(selector="th.col_heading",
                 props=[("writing-mode", "vertical-lr"),
                     ("transform", "rotateZ(180deg)"),
                     ("vertical-align", "top"),
+                    ("border-bottom", "1px solid black"),
                     ("text-orientation", "mixed")])])
         def colorize(val):
             if val == 0:
