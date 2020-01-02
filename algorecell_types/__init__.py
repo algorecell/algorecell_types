@@ -169,11 +169,13 @@ class ReprogrammingStrategies(object):
         return g
 
     def as_table(self):
+        #TODO: support multi-valued
         l = set()
         for a in self.__d:
             mods = {}
             for p in a[0].perturbation_sequence():
                 for n, v in p.args[0].items():
+                    assert v == 0 or v == 1, "Only Boolean values are supported"
                     if n not in mods:
                         mods[n] = set()
                     mods[n].add(v)
@@ -181,15 +183,16 @@ class ReprogrammingStrategies(object):
         def fmt(vs):
             if len(vs) == 1:
                 return list(vs)[0]
-            return set(vs)
-        l = [dict([(n, fmt(vs)) for n, vs in mods]) for mods in l]
+            return '*' #set(vs)
+        l = [dict([(n, fmt(vs)) for n, vs in mods]) for mods in sorted(l)]
         df = pd.DataFrame(l).fillna('')
         df = df.style.set_table_styles([
             dict(selector="th",props=[
                 ("border-right", "1px solid black"),
                 ]),
             {"selector": "td", "props": [
-                    ("border-right", "1px solid black")]},
+                    ("border-right", "1px solid black"),
+                    ("min-width", "2em")]},
             dict(selector="th.col_heading",
                 props=[("writing-mode", "vertical-lr"),
                     ("transform", "rotateZ(180deg)"),
@@ -201,8 +204,8 @@ class ReprogrammingStrategies(object):
                 return "color: red; background-color: red"
             if val == 1:
                 return "color: green; background-color: green"
-            if type(val) is set:
-                return "background-color: yellow"
+            if val == "*":
+                return "color: yellow; background-color: yellow"
             return ""
         df = df.applymap(colorize)
         return df
