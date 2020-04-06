@@ -182,10 +182,13 @@ class ReprogrammingStrategies(object):
             l.add(frozenset([(n,frozenset(vs)) for n,vs in mods.items()]))
         def fmt(vs):
             if len(vs) == 1:
-                return list(vs)[0]
+                return str(list(vs)[0])
             return '*' #set(vs)
         l = [dict([(n, fmt(vs)) for n, vs in mods]) for mods in sorted(l)]
         df = pd.DataFrame(l).fillna('')
+        df.sort_index(axis=1, inplace=True)
+        df.sort_values(list(df.columns), inplace=True)
+        df.reset_index(drop=True, inplace=True)
         df = df.style.set_table_styles([
             dict(selector="th",props=[
                 ("border-right", "1px solid black"),
@@ -200,12 +203,12 @@ class ReprogrammingStrategies(object):
                     ("border-bottom", "1px solid black"),
                     ("text-orientation", "mixed")])])
         def colorize(val):
-            if val == 0:
-                return "color: red; background-color: red"
-            if val == 1:
-                return "color: green; background-color: green"
+            if val == "0":
+                return "color: black; background-color: red"
+            if val == "1":
+                return "color: black; background-color: green"
             if val == "*":
-                return "color: yellow; background-color: yellow"
+                return "color: black; background-color: yellow"
             return ""
         df = df.applymap(colorize)
         return df
