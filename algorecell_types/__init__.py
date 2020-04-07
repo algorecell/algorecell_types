@@ -206,9 +206,9 @@ class ReprogrammingStrategies(object):
                     ("text-orientation", "mixed")])])
         def colorize(val):
             if val == "0":
-                return "color: black; background-color: red"
+                return "color: black; background-color: lime"
             if val == "1":
-                return "color: black; background-color: green"
+                return "color: black; background-color: red"
             if val == "*":
                 return "color: black; background-color: yellow"
             return ""
