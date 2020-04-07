@@ -186,6 +186,8 @@ class ReprogrammingStrategies(object):
             return '*' #set(vs)
         l = [dict([(n, fmt(vs)) for n, vs in mods]) for mods in sorted(l)]
         df = pd.DataFrame(l).fillna('')
+        if not l: # empty
+            return df
         df.sort_index(axis=1, inplace=True)
         df.sort_values(list(df.columns), inplace=True)
         df.reset_index(drop=True, inplace=True)
