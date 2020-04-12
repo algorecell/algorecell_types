@@ -1,7 +1,5 @@
 
 
-__version__ = "0.1"
-
 import pandas as pd
 import pydot
 

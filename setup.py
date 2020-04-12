@@ -1,22 +1,14 @@
 
-import os
-import re
 from setuptools import setup, find_packages
 
 NAME = 'algorecell_types'
 
-META = {}
-META_FILE = "{}/__init__.py".format(NAME)
-with open(META_FILE) as f:
-    __data = f.read()
-for key in ["version"]:
-    match = re.search(r"^__{0}__ = ['\"]([^'\"]*)['\"]".format(key), __data, re.M)
-    if not match:
-        raise RuntimeError("Unable to find __{meta}__ string.".format(meta=key))
-    META[key] = match.group(1)
-
 setup(name=NAME,
-    description = "AlgoReCell generic types for reprogramming predictions",
+    version='9999',
+    author = "Loïc Paulevé",
+    author_email = "loic.pauleve@labri.fr",
+    url = "https://github.com/algorecell/algorecell_types",
+    description = 'Generic types for reprogramming predictions from logical models',
     install_requires = [
         "colomoto_jupyter",
         "pandas",
@@ -26,10 +18,6 @@ setup(name=NAME,
         "Intended Audience :: Science/Research",
         "Topic :: Scientific/Engineering :: Bio-Informatics",
     ],
-    keywords="computational systems biology",
-
-    include_package_data = True,
-    packages = find_packages(),
-    **META
+    packages = find_packages()
 )
 
