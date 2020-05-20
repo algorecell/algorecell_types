@@ -1,4 +1,15 @@
+"""
+This module implements generic types for representing predictions for
+the control of attractors in Boolean and multivalued networks, with
+various visualization methods.
 
+It accounts for instantaneous, temporary, and permanent perturbations, as well
+as sequential reprogramming strategies.
+
+Typically, a method computing reprogramming strategies returns an object of
+class :py:class:`.ReprogrammingStrategies`, from which can be extracted and
+visualized the set of identified strategies.
+"""
 
 import pandas as pd
 import pydot
@@ -8,6 +19,11 @@ if IN_IPYTHON:
     from IPython.display import display
 
 class _SymbolicType(object):
+    """
+    Abstract class of a symbolic type with list of arguments.
+
+    Implements a generic `repr` method.
+    """
     def __init__(self, *args):
         self.args = args
     def repr_args(self):
@@ -26,7 +42,14 @@ class _SymbolicType(object):
                 self.repr_args())
 
 class _Perturbation(_SymbolicType):
+    """
+    Abstract class for representing a perturbation.
+    """
     def __init__(self, partial_state):
+        """
+        :param dict[str,int] partial_state: effect of the perturbation, which
+            assigns states to components
+        """
         super().__init__(partial_state)
     def _repr_pretty_(self, p, cycle):
         p.text("{}({})".format(self.__class__.__name__, self.repr_args()))
@@ -34,6 +57,11 @@ class _Perturbation(_SymbolicType):
         return sep.join(["{}={}".format(k,v) \
                 for k,v in sorted(self.args[0].items())])
     def get_edge_label(self, compact=True):
+        """
+        label to use for the perturbation edge in the graph representation
+
+        :param bool compact: `True` requests a short label
+        """
         if compact:
             return "{}({})".format(self.__class__.__name__[0], len(self.args[0]))
         return "{}({})".format(self.__class__.__name__[0], self.repr_args())
@@ -43,15 +71,30 @@ class _Perturbation(_SymbolicType):
         return repr(self) == repr(p2)
 
 class PermanentPerturbation(_Perturbation):
+    """
+    A permanent perturbation locks the specified components forever (mutation).
+    """
     pass
 
 class TemporaryPerturbation(_Perturbation):
+    """
+    A temporary perturbation locks the specified components until having reached
+    an attractor, or until a :py:class:`.ReleasePerturbation`.
+    """
     pass
 
 class ReleasePerturbation(_Perturbation):
+    """
+    A release perturbation unlocks given components subject to a prior
+    :py:class:`.TemporaryPerturbation`.
+    """
     pass
 
 class InstantaneousPerturbation(_Perturbation):
+    """
+    An instantaneous perturbation modifies the states of the components and is
+    immediatly released.
+    """
     pass
 
 class _Strategy(_SymbolicType):
