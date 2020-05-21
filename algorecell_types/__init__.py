@@ -182,7 +182,7 @@ class ReprogrammingStrategies(object):
             reg = self.__known_alias[pattern] = {}
         a = reg.get(h)
         if not a:
-            a = alias_pat.format(len(reg))
+            a = pattern.format(len(reg))
             reg[h] = a
             self.register_alias(a, state)
         return a
