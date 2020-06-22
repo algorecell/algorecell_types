@@ -1,7 +1,7 @@
 """
 This module implements generic types for representing predictions for
 the control of attractors in Boolean and multivalued networks, with
-various visualization methods.
+various visualizations.
 
 It accounts for instantaneous, temporary, and permanent perturbations, as well
 as sequential reprogramming strategies.
@@ -9,6 +9,10 @@ as sequential reprogramming strategies.
 Typically, a method computing reprogramming strategies returns an object of
 class :py:class:`.ReprogrammingStrategies`, from which can be extracted and
 visualized the set of identified strategies.
+
+
+TODO: general examples
+
 """
 
 import pandas as pd
@@ -73,6 +77,10 @@ class _Perturbation(_SymbolicType):
 class PermanentPerturbation(_Perturbation):
     """
     A permanent perturbation locks the specified components forever (mutation).
+
+    Example:
+
+    >>> p = PermanentPerturbation({"a": 1, "b": 0})
     """
     pass
 
@@ -80,6 +88,10 @@ class TemporaryPerturbation(_Perturbation):
     """
     A temporary perturbation locks the specified components until having reached
     an attractor, or until a :py:class:`.ReleasePerturbation`.
+
+    Example:
+
+    >>> p = TemporaryPerturbation({"a": 1, "b": 0})
     """
     pass
 
@@ -87,6 +99,10 @@ class ReleasePerturbation(_Perturbation):
     """
     A release perturbation unlocks given components subject to a prior
     :py:class:`.TemporaryPerturbation`.
+
+    Example:
+
+    >>> p = ReleasePerturbation({"a","b"})
     """
     pass
 
@@ -94,6 +110,10 @@ class InstantaneousPerturbation(_Perturbation):
     """
     An instantaneous perturbation modifies the states of the components and is
     immediatly released.
+
+    Example:
+
+    >>> p = InstantaneousPerturbation({"a": 1, "b": 0})
     """
     pass
 
@@ -118,6 +138,11 @@ class _Strategy(_SymbolicType):
         return start
 
     def perturbation_sequence(self):
+        """
+        Returns the sequence of perturbations encoded by the strategy
+
+        :rtype: tuple of :py:class:`._Perturbation` objects
+        """
         ps = (self.perturbation(),)
         s = self.next()
         if s:
@@ -125,6 +150,16 @@ class _Strategy(_SymbolicType):
         return ps
 
 class FromAny(_Strategy):
+    """
+    Reprogramming strategy that can be applied in any state of the network
+    """
+    def __init__(self, perturbation, *seq):
+        """
+        The first argument is a perturbation object,
+        the optional last argument is the next strategy to apply (sequential reprogramming).
+        """
+        assert len(seq) <= 1
+        super().__init__(perturbation, *seq)
     def make_start_node(self):
         n = pydot.Node("any", label="")
         n.set_tooltip(self.__class__.__name__[4:])
@@ -138,6 +173,22 @@ class FromAny(_Strategy):
             return self.args[1]
 
 class FromState(_Strategy):
+    """
+    Reprograming strategy that should be applied in the specified state
+    """
+    alias_template = 's{}'
+    def __init__(self, state, perturbation, *seq):
+        """
+        The first argument is the state (or alias),
+        the second argument is a perturbation object,
+        the optional last argument is the next strategy to apply (sequential reprogramming).
+        """
+        assert len(seq) <= 1
+        super().__init__(state, perturbation, *seq)
+    def key(self):
+        return self.args[0]
+    def replace_key(self, key):
+        self.args[0] = key
     def make_start_node(self):
         n = pydot.Node(self.args[0])
         n.set_tooltip(self.__class__.__name__[4:])
@@ -149,9 +200,17 @@ class FromState(_Strategy):
             return self.args[2]
 
 class FromCondition(FromState):
-    pass
+    """
+    Reprogramming strategy that should be applied only with the given condition
+    """
+    alias_template = 'c{}'
 
 class FromSteadyState(FromState):
+    """
+    Reprogramming strategy that should be applied in the given steady state
+    (fixed point).
+    """
+    alias_template = 'a{}'
     def make_start_node(self):
         n = super().make_start_node()
         n.set_style("filled")
@@ -159,6 +218,11 @@ class FromSteadyState(FromState):
         return n
 
 class FromOneInLimitCycle(FromState):
+    """
+    Reprogramming strategy that should be applied in one state of the given
+    cyclic attractor.
+    """
+    alias_template = 'a{}'
     def make_start_node(self):
         n = super().make_start_node()
         n.set_style("dashed")
@@ -166,6 +230,9 @@ class FromOneInLimitCycle(FromState):
 
 
 class ReprogrammingStrategies(object):
+    """
+    TODO
+    """
     def __init__(self):
         self.__d = []
         self.__aliases = {}
@@ -193,10 +260,22 @@ class ReprogrammingStrategies(object):
     def add(self, s, **props):
         self.__d.append((s, props))
 
+    def __iter__(self):
+        """
+        Iterator over added strategies
+        """
+        return iter(self.__d)
+
     def _repr_pretty_(self, p, cycle):
         p.pretty([a[0] for a in self.__d])
 
     def as_graph(self, compact=False):
+        """
+        Returns a directed graph representation of the strategies
+
+        :keyword bool compact: draw compact edge labels (default: `False`)
+        :rtype: `pydot.Dot <https://github.com/pydot/pydot>`
+        """
         g = pydot.Dot("")
         g.set_rankdir("LR")
         target = pydot.Node("target")

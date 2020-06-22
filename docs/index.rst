@@ -1,17 +1,7 @@
-algorecell_types
-===============
-
-.. toctree::
-   :maxdepth: 2
-   :caption: Contents:
+algorecell_types Python module
+------------------------------
 
 .. automodule:: algorecell_types
     :members:
 
-
-Indices and tables
-==================
-
 * :ref:`genindex`
-* :ref:`modindex`
-* :ref:`search`

@@ -1,0 +1,3 @@
+colomoto_jupyter
+pandas
+pydot
