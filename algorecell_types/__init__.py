@@ -10,8 +10,12 @@ Typically, a method computing reprogramming strategies returns an object of
 class :py:class:`.ReprogrammingStrategies`, from which can be extracted and
 visualized the set of identified strategies.
 
+Exemples of projects using the ``algorecell_types`` module:
 
-TODO: general examples
+* `ActoNet <https://github.com/algorecell/pyActoNet>`_
+* `CABEAN-python <https://github.com/algorecell/cabean-python>`_
+* `Caspo-control <https://github.com/algorecell/caspo-control>`_
+* `StableMotifs-python <https://github.com/algorecell/StableMotifs-python>`_
 
 """
 
@@ -238,43 +242,12 @@ class ReprogrammingStrategies(object):
         self.__aliases = {}
         self.__autoaliases = {}
 
-    @property
-    def aliases(self):
-        return pd.DataFrame(self.__aliases).T
-
-    def autoalias(self, pattern, state):
-        h = tuple(sorted(state.items()))
-        reg = self.__autoaliases.get(pattern)
-        if not reg:
-            reg = self.__known_alias[pattern] = {}
-        a = reg.get(h)
-        if not a:
-            a = pattern.format(len(reg))
-            reg[h] = a
-            self.register_alias(a, state)
-        return a
-
-    def register_alias(self, name, state):
-        self.__aliases[name] = state
-
-    def add(self, s, **props):
-        self.__d.append((s, props))
-
-    def __iter__(self):
-        """
-        Iterator over added strategies
-        """
-        return iter(self.__d)
-
-    def _repr_pretty_(self, p, cycle):
-        p.pretty([a[0] for a in self.__d])
-
     def as_graph(self, compact=False):
         """
         Returns a directed graph representation of the strategies
 
         :keyword bool compact: draw compact edge labels (default: `False`)
-        :rtype: `pydot.Dot <https://github.com/pydot/pydot>`
+        :rtype: `pydot.Dot <https://github.com/pydot/pydot>`_ graph
         """
         g = pydot.Dot("")
         g.set_rankdir("LR")
@@ -289,6 +262,9 @@ class ReprogrammingStrategies(object):
         return g
 
     def as_table(self):
+        """
+        TODO
+        """
         #TODO: support multi-valued
         l = set()
         for a in self.__d:
@@ -336,10 +312,54 @@ class ReprogrammingStrategies(object):
         return df
 
     def perturbations(self):
+        """
+        TODO
+        """
         ps = set()
         for a in self.__d:
             ps.add(a[0].perturbation_sequence())
         return ps
+
+    @property
+    def aliases(self):
+        """
+        TODO
+        """
+        return pd.DataFrame(self.__aliases).T
+
+    def autoalias(self, pattern, state):
+        h = tuple(sorted(state.items()))
+        reg = self.__autoaliases.get(pattern)
+        if not reg:
+            reg = self.__known_alias[pattern] = {}
+        a = reg.get(h)
+        if not a:
+            a = pattern.format(len(reg))
+            reg[h] = a
+            self.register_alias(a, state)
+        return a
+
+    def register_alias(self, name, state):
+        """
+        TODO
+        """
+        self.__aliases[name] = state
+
+    def add(self, s, **props):
+        """
+        TODO
+        """
+        self.__d.append((s, props))
+
+    def __iter__(self):
+        """
+        Iterator over added strategies
+        """
+        return iter(self.__d)
+
+    def _repr_pretty_(self, p, cycle):
+        p.pretty([a[0] for a in self.__d])
+
 
 if IN_IPYTHON:
     try:
