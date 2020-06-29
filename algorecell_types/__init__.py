@@ -159,8 +159,8 @@ class FromAny(_Strategy):
     """
     def __init__(self, perturbation, *seq):
         """
-        The first argument is a perturbation object,
-        the optional last argument is the next strategy to apply (sequential reprogramming).
+        :param ._Perturbation perturbation: perturbation object
+        :keyword ._Strategy seq: optional the next strategy to apply (sequential reprogramming)
         """
         assert len(seq) <= 1
         super().__init__(perturbation, *seq)
@@ -183,9 +183,9 @@ class FromState(_Strategy):
     alias_template = 's{}'
     def __init__(self, state, perturbation, *seq):
         """
-        The first argument is the state (or alias),
-        the second argument is a perturbation object,
-        the optional last argument is the next strategy to apply (sequential reprogramming).
+        :param str state: alias of the state
+        :param ._Perturbation perturbation: perturbation object
+        :keyword ._Strategy seq: optional the next strategy to apply (sequential reprogramming)
         """
         assert len(seq) <= 1
         super().__init__(state, perturbation, *seq)
@@ -235,9 +235,12 @@ class FromOneInLimitCycle(FromState):
 
 class ReprogrammingStrategies(object):
     """
-    TODO
+    Stores a list of reprogramming strategies and offers various visualization
+    methods, including IPython representation.
     """
     def __init__(self):
+        """
+        """
         self.__d = []
         self.__aliases = {}
         self.__autoaliases = {}
@@ -245,8 +248,9 @@ class ReprogrammingStrategies(object):
     def as_graph(self, compact=False):
         """
         Returns a directed graph representation of the strategies
+        Edge labels indicate the type and specification of perturbations.
 
-        :keyword bool compact: draw compact edge labels (default: `False`)
+        :keyword bool compact: draw compact edge labels
         :rtype: `pydot.Dot <https://github.com/pydot/pydot>`_ graph
         """
         g = pydot.Dot("")
@@ -263,7 +267,16 @@ class ReprogrammingStrategies(object):
 
     def as_table(self):
         """
-        TODO
+        Returns a `pandas.DataFrame <https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html>`_
+        where each row corresponds to a reprogramming stategy, and columns
+        indicate which nodes are perturbated, in which direction.
+
+        Note that this representation hides the type of perturbation.
+        Moreover sequential reproogramming strategies are flatten.
+
+        Red cells indicate a forced activation, green cells a forced inhibtion.
+        Yellow cells indicate a sequential reprogramming strategy in which the
+        node is first activated and then later inhibited, or conversely.
         """
         #TODO: support multi-valued
         l = set()
@@ -313,7 +326,10 @@ class ReprogrammingStrategies(object):
 
     def perturbations(self):
         """
-        TODO
+        Returns the set of :py:meth:`._Strategy.perturbation_sequence` of
+        registered reprogramming strategies.
+
+        :rtype: set(tuple(._Perturbation))
         """
         ps = set()
         for a in self.__d:
@@ -323,7 +339,8 @@ class ReprogrammingStrategies(object):
     @property
     def aliases(self):
         """
-        TODO
+        Returns a `pandas.DataFrame <https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html>`_
+        listing the state aliases used by the reprogramming strategies.
         """
         return pd.DataFrame(self.__aliases).T
 
@@ -341,19 +358,22 @@ class ReprogrammingStrategies(object):
 
     def register_alias(self, name, state):
         """
-        TODO
+        Register `name` as being an alias of `state`.
+
+        :param str name:
+        :param dict[str,int] state:
         """
         self.__aliases[name] = state
 
     def add(self, s, **props):
         """
-        TODO
+        Add a reprogramming strategy `s`, with optional properties `props`.
         """
         self.__d.append((s, props))
 
     def __iter__(self):
         """
-        Iterator over added strategies
+        Iterator over registered strategies
         """
         return iter(self.__d)
 

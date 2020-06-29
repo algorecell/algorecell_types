@@ -21,8 +21,6 @@ project = 'algorecell_types'
 copyright = '2020, Loïc Paulevé'
 author = 'Loïc Paulevé'
 
-autoclass_content = 'both'
-
 master_doc = 'index'
 
 # -- General configuration ---------------------------------------------------
