@@ -321,7 +321,7 @@ class ReprogrammingStrategies(object):
             if val == "*":
                 return "color: black; background-color: yellow"
             return ""
-        df = df.applymap(colorize)
+        df = df.map(colorize)
         return df
 
     def perturbations(self):
